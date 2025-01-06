@@ -1,6 +1,11 @@
+import torch
+from model_architecture.DQN_all import get_device
 import copy
 
 def train_agent(env, agent, episodes=400, print_every=10):
+    device = get_device()
+    print(f"Training on device: {device}")
+    
     rewards_history = []
     portfolio_history = []
     best_reward = -float('inf')
@@ -16,6 +21,12 @@ def train_agent(env, agent, episodes=400, print_every=10):
         while not done:
             action = agent.act(state)
             next_state, reward, done, info = env.step(action)
+            
+            # Ensure state and next_state are on the correct device
+            if isinstance(state, torch.Tensor):
+                state = state.to(device)
+            if isinstance(next_state, torch.Tensor):
+                next_state = next_state.to(device)
             
             agent.memory.push(state, action, reward, next_state, done)
             loss = agent.train()

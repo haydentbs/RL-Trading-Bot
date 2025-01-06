@@ -6,7 +6,13 @@ import random
 from collections import deque
 import numpy as np
 
-
+def get_device():
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    elif torch.cuda.is_available():
+        return torch.device("cuda")
+    else:
+        return torch.device("cpu")
 
 class StandardDQN(nn.Module):
     def __init__(self, input_size, output_size):
@@ -84,7 +90,7 @@ class ReplayBuffer:
 # Modified Agent class to support different architectures
 class DQNAgents:
     def __init__(self, state_size, action_size, model_type='standard', 
-                 device='cuda' if torch.cuda.is_available() else 'cpu',
+                 device=get_device(),
                  gamma=0.99, epsilon=1.0, epsilon_min=0.01, 
                  epsilon_decay=0.995, learning_rate=0.001, 
                  batch_size=64, update_target_freq=10):
